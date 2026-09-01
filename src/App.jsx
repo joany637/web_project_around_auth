@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
-
 import Header from './components/Header/Header.jsx';
 import Main from './components/Main/Main.jsx';
 import Footer from './components/Footer/Footer.jsx';
@@ -8,35 +7,27 @@ import Login from './components/Login/Login.jsx';
 import Register from './components/Register/Register.jsx';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute.jsx';
 import InfoTooltip from './components/InfoTooltip/InfoTooltip.jsx';
-
 import {
   register,
   authorize,
   checkToken,
-} from '../src/utils/auth.js';
+} from './utils/auth.js';
 
 function App() {
   const navigate = useNavigate();
-
   const [loggedIn, setLoggedIn] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [isCheckingToken, setIsCheckingToken] = useState(true);
-
-  const [isInfoTooltipOpen, setIsInfoTooltipOpen] =
-    useState(false);
-
-  const [isRegistrationSuccess, setIsRegistrationSuccess] =
-    useState(false);
+  const [isInfoTooltipOpen, setIsInfoTooltipOpen] = useState(false);
+  const [isRegistrationSuccess, setIsRegistrationSuccess] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('jwt');
-
     if (!token) {
       setIsCheckingToken(false);
-      navigate('/signin');
+      /*navigate('/signin');*/
       return;
     }
-
     checkToken(token)
       .then((data) => {
         setCurrentUser(data.data);
@@ -44,11 +35,9 @@ function App() {
       })
       .catch((err) => {
         console.log('Token inválido:', err);
-
         localStorage.removeItem('jwt');
         setCurrentUser(null);
         setLoggedIn(false);
-
         navigate('/signin');
       })
       .finally(() => {
@@ -57,14 +46,16 @@ function App() {
   }, [navigate]);
 
   function handleRegister({ email, password }) {
+    console.log('📤 Enviando registro:', { email, password });
+    
     register({ email, password })
-      .then(() => {
+      .then((res) => {
+        console.log('✅ Registro exitoso:', res);
         setIsRegistrationSuccess(true);
         setIsInfoTooltipOpen(true);
       })
       .catch((err) => {
-        console.log('Error de registro:', err);
-
+        console.log('❌ Error de registro:', err);
         setIsRegistrationSuccess(false);
         setIsInfoTooltipOpen(true);
       });
@@ -74,24 +65,14 @@ function App() {
     authorize({ email, password })
       .then((data) => {
         console.log('Respuesta del login:', data);
-
         const token = data.token;
-
         localStorage.setItem('jwt', token);
-
-        console.log(
-          'Token guardado:',
-          localStorage.getItem('jwt')
-        );
-
         return checkToken(token);
       })
       .then((userData) => {
         console.log('Usuario autorizado:', userData);
-
         setCurrentUser(userData.data);
         setLoggedIn(true);
-
         navigate('/');
       })
       .catch((err) => {
@@ -101,16 +82,14 @@ function App() {
 
   function handleSignOut() {
     localStorage.removeItem('jwt');
-
     setLoggedIn(false);
     setCurrentUser(null);
-
     navigate('/signin');
   }
 
   function closeInfoTooltip() {
+    console.log('🔒 Cerrando tooltip');
     setIsInfoTooltipOpen(false);
-
     if (isRegistrationSuccess) {
       navigate('/signin');
     }
@@ -129,45 +108,35 @@ function App() {
             <ProtectedRoute loggedIn={loggedIn}>
               <div className="page">
                 <div className="page__content">
-                  <Header
-                    loggedIn={loggedIn}
-                    onSignOut={handleSignOut}
-                  />
-
+                  <Header loggedIn={loggedIn} onSignOut={handleSignOut} />
                   <Main currentUser={currentUser} />
-
                   <Footer />
                 </div>
               </div>
             </ProtectedRoute>
           }
         />
-
         <Route
           path="/signin"
           element={
             <>
               <Header loggedIn={false} />
-
               <Login onLogin={handleLogin} />
             </>
           }
         />
-
         <Route
           path="/signup"
           element={
             <>
               <Header loggedIn={false} />
-
-              <Register
-                onRegister={handleRegister}
-              />
+              <Register onRegister={handleRegister} />
             </>
           }
         />
       </Routes>
 
+      {/* 👇 AQUÍ ESTÁ EL COMPONENTE DE MENSAJE */}
       <InfoTooltip
         isOpen={isInfoTooltipOpen}
         onClose={closeInfoTooltip}

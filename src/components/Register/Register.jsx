@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 function Register({ onRegister }) {
   const [email, setEmail] = useState('');
@@ -10,14 +11,13 @@ function Register({ onRegister }) {
   }
 
   return (
-    <main className="auth">
-      <form className="auth__form" onSubmit={handleSubmit}>
-        <h2 className="auth__title">Registrarse</h2>
-
+    <main className="register">
+      <form className="register__form" onSubmit={handleSubmit}>
+        <h2 className="register__title">Regístrate</h2>
         <input
           id="register-email"
           name="email"
-          className="auth__input"
+          className="register__input"
           type="email"
           placeholder="Correo electrónico"
           value={email}
@@ -25,11 +25,10 @@ function Register({ onRegister }) {
           autoComplete="email"
           required
         />
-
         <input
           id="register-password"
           name="password"
-          className="auth__input"
+          className="register__input"
           type="password"
           placeholder="Contraseña"
           value={password}
@@ -37,10 +36,12 @@ function Register({ onRegister }) {
           autoComplete="new-password"
           required
         />
-
-        <button className="auth__button" type="submit">
+        <button className="register__button" type="submit">
           Registrarse
         </button>
+        <p className="register__signup">
+          ¿Ya eres miembro? <Link to="/signin" className="register__link">Inicia sesión</Link>
+        </p>
       </form>
     </main>
   );

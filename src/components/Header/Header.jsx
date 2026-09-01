@@ -9,19 +9,14 @@ function Header({ loggedIn, onSignOut }) {
         alt="palabra Around"
         className="header-vector"
       />
-
       {!loggedIn && (
         <nav className="header__navigation">
-          <Link to="/signin" className="header__link">
-            Iniciar sesión
-          </Link>
-
+          
           <Link to="/signup" className="header__link">
             Registrarse
           </Link>
         </nav>
       )}
-
       {loggedIn && (
         <nav className="header__navigation">
           <button
@@ -33,7 +28,6 @@ function Header({ loggedIn, onSignOut }) {
           </button>
         </nav>
       )}
-
       <hr className="header-line" />
     </header>
   );
