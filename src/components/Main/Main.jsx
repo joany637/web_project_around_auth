@@ -45,6 +45,7 @@ useEffect(() => {
   }
 
   function handleCardLike(card) {
+     const isLiked = card.likes?.some((like) => like === currentUser?._id);
     const request = card.isLiked
       ? api.dislikeCard(card._id)
       : api.likeCard(card._id);
@@ -54,7 +55,7 @@ useEffect(() => {
         setCards((currentCards) =>
           currentCards.map((currentCard) =>
             currentCard._id === card._id
-              ? data.data
+              ? data
               : currentCard
           )
         );
@@ -182,15 +183,16 @@ useEffect(() => {
 
         <ul className="cards__list">
 
-          {cards.map((card) => (
-            <Card
+          {cards.filter((card) => card).map((card) => ( 
+           <Card          
               key={card._id}
               card={card}
               onCardClick={handleCardClick}
               onCardLike={handleCardLike}
               onCardDelete={handleCardDelete}
+                currentUser={currentUser}
             />
-          ))}
+))}
 
         </ul>
 

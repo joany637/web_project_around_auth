@@ -6,7 +6,6 @@
   flex-direction: column;
   position: relative;
 }
-
 .card__title {
   max-width: 220px;
   font-size: 24px;
@@ -16,17 +15,15 @@
   white-space: nowrap;
   overflow: hidden;
   margin: 0;
+  color: #121111;
 }
-
 .card__description {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #fff;
+  background: #f1ecec;
   padding: 25px 15px 31px 21px;
-  /* To make spacings to the top and bottom identical per PixelPerfext */
 }
-
 .card__image {
   min-height: 282px;
   max-height: 282px;
@@ -37,32 +34,28 @@
   flex-direction: column;
   gap: 3px;
 }
-
 .card__like-count {
   font-size: 13px;
   text-align: center;
 }
-
 .card__like-button {
   width: 21px;
   height: 19px;
-  background: transparent url('../images/like-inactive.svg') center no-repeat;
   background-size: 21px 18px;
   border: none;
   padding: 0;
   margin: 0;
 }
-
 .card__like-button:hover {
   opacity: 0.5;
   cursor: pointer;
 }
-
 .card__delete-button {
   width: 18px;
   height: 18px;
-  background: transparent url('../images/delete-icon.svg') center no-repeat;
-  background-size: 18px 18px;
+  /* ✅ Ruta con ../../ y nombre EXACTO del archivo */
+  background: url('../images/basurero.png') center no-repeat;
+  background-size: contain;
   border: none;
   cursor: pointer;
   position: absolute;
@@ -70,17 +63,13 @@
   right: 15px;
   padding: 0;
   margin: 0;
-  display: none;
 }
-
 .card__delete-button_is-visible {
   display: block;
 }
-
 .card__delete-button:hover {
   opacity: 0.6;
 }
-
 .card__like-button_is-active {
-  background: transparent url('../images/like-active.svg') no-repeat;
+  background-size: 21px 18px;
 }

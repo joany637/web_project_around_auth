@@ -25,7 +25,6 @@ function App() {
     const token = localStorage.getItem('jwt');
     if (!token) {
       setIsCheckingToken(false);
-      /*navigate('/signin');*/
       return;
     }
     checkToken(token)
@@ -47,7 +46,6 @@ function App() {
 
   function handleRegister({ email, password }) {
     console.log('📤 Enviando registro:', { email, password });
-    
     register({ email, password })
       .then((res) => {
         console.log('✅ Registro exitoso:', res);
@@ -108,7 +106,12 @@ function App() {
             <ProtectedRoute loggedIn={loggedIn}>
               <div className="page">
                 <div className="page__content">
-                  <Header loggedIn={loggedIn} onSignOut={handleSignOut} />
+                  {/* ✅ Pasamos el correo al Header */}
+                  <Header 
+                    loggedIn={loggedIn} 
+                    userEmail={currentUser?.email} 
+                    onSignOut={handleSignOut} 
+                  />
                   <Main currentUser={currentUser} />
                   <Footer />
                 </div>
@@ -136,7 +139,6 @@ function App() {
         />
       </Routes>
 
-      {/* 👇 AQUÍ ESTÁ EL COMPONENTE DE MENSAJE */}
       <InfoTooltip
         isOpen={isInfoTooltipOpen}
         onClose={closeInfoTooltip}

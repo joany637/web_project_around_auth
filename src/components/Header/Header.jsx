@@ -1,7 +1,12 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import logo from '../../images/Vector.png';
 
-function Header({ loggedIn, onSignOut }) {
+// 📥 Recibimos el correo como una propiedad más
+function Header({ loggedIn, userEmail, onSignOut }) {
+  const ubicacion = useLocation();
+  const estaEnRegistro = ubicacion.pathname === '/signup';
+  const estaEnInicio = ubicacion.pathname === '/signin';
+
   return (
     <header className="header">
       <img
@@ -9,16 +14,26 @@ function Header({ loggedIn, onSignOut }) {
         alt="palabra Around"
         className="header-vector"
       />
+
       {!loggedIn && (
         <nav className="header__navigation">
-          
-          <Link to="/signup" className="header__link">
-            Registrarse
-          </Link>
+          {estaEnRegistro && (
+            <Link to="/signin" className="header__link">
+              Iniciar sesión
+            </Link>
+          )}
+          {estaEnInicio && (
+            <Link to="/signup" className="header__link">
+              Registrarse
+            </Link>
+          )}
         </nav>
       )}
+
       {loggedIn && (
         <nav className="header__navigation">
+          {/* ✅ Aquí mostramos el correo ingresado */}
+          <span className="header__email">{userEmail}</span>
           <button
             type="button"
             className="header__logout"
@@ -28,6 +43,7 @@ function Header({ loggedIn, onSignOut }) {
           </button>
         </nav>
       )}
+
       <hr className="header-line" />
     </header>
   );
