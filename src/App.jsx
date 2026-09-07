@@ -7,11 +7,22 @@ import Login from './components/Login/Login.jsx';
 import Register from './components/Register/Register.jsx';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute.jsx';
 import InfoTooltip from './components/InfoTooltip/InfoTooltip.jsx';
+
 import {
   register,
   authorize,
   checkToken,
 } from './utils/auth.js';
+
+// Componente Página no Encontrada
+const NotFound = () => {
+  return (
+    <div style={{ textAlign: 'center', marginTop: '5rem', fontSize: '1.5rem' }}>
+      <h1>Página no Encontrada</h1>
+      <p>La ruta que intentas visitar no existe</p>
+    </div>
+  );
+};
 
 function App() {
   const navigate = useNavigate();
@@ -74,7 +85,10 @@ function App() {
         navigate('/');
       })
       .catch((err) => {
-        console.log('Error de login:', err);
+        console.log('❌ Error de login:', err);
+        // ✅ NUEVO: Mostrar mensaje de error en el login
+        setIsRegistrationSuccess(false);
+        setIsInfoTooltipOpen(true);
       });
   }
 
@@ -106,7 +120,6 @@ function App() {
             <ProtectedRoute loggedIn={loggedIn}>
               <div className="page">
                 <div className="page__content">
-                  {/* ✅ Pasamos el correo al Header */}
                   <Header 
                     loggedIn={loggedIn} 
                     userEmail={currentUser?.email} 
@@ -119,6 +132,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/signin"
           element={
@@ -128,6 +142,7 @@ function App() {
             </>
           }
         />
+
         <Route
           path="/signup"
           element={
@@ -137,6 +152,8 @@ function App() {
             </>
           }
         />
+
+        <Route path="*" element={<NotFound />} />
       </Routes>
 
       <InfoTooltip
