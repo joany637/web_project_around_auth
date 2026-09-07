@@ -11,26 +11,25 @@ import EditAvatar from './components/Form/EditAvatar/EditAvatar';
 
 import api from '../../utils/api';
 
-export default function Main({ currentUser }) {
+export default function Main({ currentUser, onUpdateUser, onUpdateAvatar }) {
   const [cards, setCards] = useState([]);
-
   const [popup, setPopup] = useState(null);
   const [selectedCard, setSelectedCard] = useState(null);
 
-useEffect(() => {
-  if (!currentUser) {
-    return;
-  }
+  useEffect(() => {
+    if (!currentUser) {
+      return;
+    }
 
-  api.getCards()
-    .then((data) => {
-      console.log('TARJETAS RECIBIDAS:', data);
-      setCards(data.data || data);
-    })
-    .catch((err) => {
-      console.log('ERROR AL CARGAR TARJETAS:', err);
-    });
-}, [currentUser]);
+    api.getCards()
+      .then((data) => {
+        console.log('TARJETAS RECIBIDAS:', data);
+        setCards(data.data || data);
+      })
+      .catch((err) => {
+        console.log('ERROR AL CARGAR TARJETAS:', err);
+      });
+  }, [currentUser]);
 
   function handleOpenPopup(popupData) {
     setPopup(popupData);
@@ -45,17 +44,18 @@ useEffect(() => {
   }
 
   function handleCardLike(card) {
-     const isLiked = card.likes?.some((like) => like === currentUser?._id);
     const request = card.isLiked
       ? api.dislikeCard(card._id)
       : api.likeCard(card._id);
 
     request
       .then((data) => {
+        const updatedCard = data.data || data;
+
         setCards((currentCards) =>
           currentCards.map((currentCard) =>
             currentCard._id === card._id
-              ? data
+              ? updatedCard
               : currentCard
           )
         );
@@ -82,8 +82,10 @@ useEffect(() => {
   function handleAddCard({ name, link }) {
     api.createCard({ name, link })
       .then((data) => {
+        const newCard = data.data || data;
+
         setCards((currentCards) => [
-          data.data,
+          newCard,
           ...currentCards,
         ]);
 
@@ -95,11 +97,23 @@ useEffect(() => {
   }
 
   function handleUpdateProfile({ name, about }) {
-    console.log(name, about);
-    handleClosePopup();
+    onUpdateUser({ name, about })
+      .then(() => {
+        handleClosePopup();
+      })
+      .catch((err) => {
+        console.log('ERROR AL ACTUALIZAR PERFIL:', err);
+      });
   }
 
   function handleUpdateAvatar(avatarUrl) {
+    onUpdateAvatar(avatarUrl)
+      .then(() => {
+        console.log('✅ Avatar actualizado:', avatarUrl);
+      })
+      .catch((err) => {
+        console.log('❌ Error al actualizar el avatar:', err);
+      });
     console.log(avatarUrl);
     handleClosePopup();
   }
@@ -132,6 +146,7 @@ useEffect(() => {
     <main className="container">
 
       <section className="perfile">
+        <div className="profile__container">
 
         <img
           src={
@@ -142,6 +157,16 @@ useEffect(() => {
           alt="Usuario"
           className="perfile-img"
         />
+        <button
+          className="edit__avatar"
+          type="button"
+          aria-label="Editar avatar"
+          onClick={() =>
+            handleOpenPopup(editAvatarPopup
+            )
+          }
+        />
+        </div>
 
         <div className="perfile-content">
 
@@ -183,16 +208,18 @@ useEffect(() => {
 
         <ul className="cards__list">
 
-          {cards.filter((card) => card).map((card) => ( 
-           <Card          
-              key={card._id}
-              card={card}
-              onCardClick={handleCardClick}
-              onCardLike={handleCardLike}
-              onCardDelete={handleCardDelete}
+          {cards
+            .filter((card) => card)
+            .map((card) => (
+              <Card
+                key={card._id}
+                card={card}
+                onCardClick={handleCardClick}
+                onCardLike={handleCardLike}
+                onCardDelete={handleCardDelete}
                 currentUser={currentUser}
-            />
-))}
+              />
+            ))}
 
         </ul>
 

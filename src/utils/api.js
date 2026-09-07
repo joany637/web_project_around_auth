@@ -6,12 +6,14 @@ function checkResponse(res) {
   }
 
   return res.json().then((data) => {
-    return Promise.reject(data.message || `Error: ${res.status}`);
+    return Promise.reject(
+      data.message || `Error: ${res.status}`
+    );
   });
 }
 
 function request(endpoint, options = {}) {
-  /*const token = localStorage.getItem('jwt');*/
+  // Mantenemos tu token exactamente como está.
   const token = "ff0984c5-e569-4c67-a9c9-6db7ea5e5c0e";
 
   const headers = {
@@ -20,7 +22,6 @@ function request(endpoint, options = {}) {
   };
 
   if (token) {
-    /* headers.Authorization = `Bearer ${token}`;*/
     headers.Authorization = token;
   }
 

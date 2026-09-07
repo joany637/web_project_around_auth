@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
+
 import Header from './components/Header/Header.jsx';
 import Main from './components/Main/Main.jsx';
 import Footer from './components/Footer/Footer.jsx';
@@ -14,10 +15,17 @@ import {
   checkToken,
 } from './utils/auth.js';
 
-// Componente Página no Encontrada
+import api from './utils/api.js';
+
 const NotFound = () => {
   return (
-    <div style={{ textAlign: 'center', marginTop: '5rem', fontSize: '1.5rem' }}>
+    <div
+      style={{
+        textAlign: 'center',
+        marginTop: '5rem',
+        fontSize: '1.5rem',
+      }}
+    >
       <h1>Página no Encontrada</h1>
       <p>La ruta que intentas visitar no existe</p>
     </div>
@@ -26,28 +34,35 @@ const NotFound = () => {
 
 function App() {
   const navigate = useNavigate();
+
   const [loggedIn, setLoggedIn] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [isCheckingToken, setIsCheckingToken] = useState(true);
   const [isInfoTooltipOpen, setIsInfoTooltipOpen] = useState(false);
-  const [isRegistrationSuccess, setIsRegistrationSuccess] = useState(false);
+  const [isRegistrationSuccess, setIsRegistrationSuccess] =
+    useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('jwt');
+
     if (!token) {
       setIsCheckingToken(false);
       return;
     }
+
     checkToken(token)
       .then((data) => {
+        console.log('Usuario actual:', data);
         setCurrentUser(data.data);
         setLoggedIn(true);
       })
       .catch((err) => {
         console.log('Token inválido:', err);
+
         localStorage.removeItem('jwt');
         setCurrentUser(null);
         setLoggedIn(false);
+
         navigate('/signin');
       })
       .finally(() => {
@@ -56,15 +71,21 @@ function App() {
   }, [navigate]);
 
   function handleRegister({ email, password }) {
-    console.log('📤 Enviando registro:', { email, password });
+    console.log('📤 Enviando registro:', {
+      email,
+      password,
+    });
+
     register({ email, password })
       .then((res) => {
         console.log('✅ Registro exitoso:', res);
+
         setIsRegistrationSuccess(true);
         setIsInfoTooltipOpen(true);
       })
       .catch((err) => {
         console.log('❌ Error de registro:', err);
+
         setIsRegistrationSuccess(false);
         setIsInfoTooltipOpen(true);
       });
@@ -74,34 +95,88 @@ function App() {
     authorize({ email, password })
       .then((data) => {
         console.log('Respuesta del login:', data);
+
         const token = data.token;
+
         localStorage.setItem('jwt', token);
+
         return checkToken(token);
       })
       .then((userData) => {
         console.log('Usuario autorizado:', userData);
+
         setCurrentUser(userData.data);
         setLoggedIn(true);
+
         navigate('/');
       })
       .catch((err) => {
         console.log('❌ Error de login:', err);
-        // ✅ NUEVO: Mostrar mensaje de error en el login
+
         setIsRegistrationSuccess(false);
         setIsInfoTooltipOpen(true);
       });
   }
 
+  function handleUpdateUser({ name, about }) {
+    return api
+      .updateProfile({ name, about })
+      .then((data) => {
+        console.log('✅ Usuario actualizado:', data);
+
+        const updatedUser = data.data || data;
+
+        setCurrentUser(updatedUser);
+
+        return updatedUser;
+      })
+      .catch((err) => {
+        console.log(
+          '❌ Error al actualizar el perfil:',
+          err
+        );
+
+        throw err;
+      });
+  }
+
+  
+  function handleUpdateAvatar(avatarUrl) {
+    return api
+      .updateAvatar( avatarUrl )
+      .then((data) => {
+        console.log('✅ Avatar actualizado:', data);
+
+        const updatedUser = data.data || data;
+
+        setCurrentUser(updatedUser);
+
+        return updatedUser;
+      })
+      .catch((err) => {
+        console.log(
+          '❌ Error al actualizar el avatar:',
+          err
+        );
+
+        throw err;
+      });
+  }
+
   function handleSignOut() {
     localStorage.removeItem('jwt');
+
     setLoggedIn(false);
     setCurrentUser(null);
+
     navigate('/signin');
   }
 
   function closeInfoTooltip() {
     console.log('🔒 Cerrando tooltip');
+
     setIsInfoTooltipOpen(false);
+
     if (isRegistrationSuccess) {
       navigate('/signin');
     }
@@ -114,19 +189,28 @@ function App() {
   return (
     <>
       <Routes>
+
         <Route
           path="/"
           element={
             <ProtectedRoute loggedIn={loggedIn}>
               <div className="page">
                 <div className="page__content">
-                  <Header 
-                    loggedIn={loggedIn} 
-                    userEmail={currentUser?.email} 
-                    onSignOut={handleSignOut} 
+
+                  <Header
+                    loggedIn={loggedIn}
+                    userEmail={currentUser?.email}
+                    onSignOut={handleSignOut}
                   />
-                  <Main currentUser={currentUser} />
+
+                  <Main
+                    currentUser={currentUser}
+                    onUpdateUser={handleUpdateUser}
+                    onUpdateAvatar={handleUpdateAvatar}
+                  />
+
                   <Footer />
+
                 </div>
               </div>
             </ProtectedRoute>
@@ -153,7 +237,11 @@ function App() {
           }
         />
 
-        <Route path="*" element={<NotFound />} />
+        <Route
+          path="*"
+          element={<NotFound />}
+        />
+
       </Routes>
 
       <InfoTooltip
